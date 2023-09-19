@@ -4,16 +4,22 @@
   "type": "module",
   "description": "Analysis Extraction JSON KFS",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./src/index.cjs",
+    "dev": "nodemon ./src/index.cjs",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src -d dist"
   },
-  "author": "",
+  "author": "F.H.",
   "license": "ISC",
   "dependencies": {
     "esm": "^3.2.25",
     "fs": "0.0.1-security",
     "path": "^0.12.7",
     "puppeteer": "^21.1.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.22.15",
+    "@babel/core": "^7.22.20",
+    "@babel/preset-env": "^7.22.20"
   }
 }

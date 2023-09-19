@@ -1,10 +1,13 @@
+const fs = require('fs');
+const path = require('path');
 
-import fs from 'fs';
-const jsonFilePath = new URL('./coverages/coverages.json', import.meta.url);
-export  async function replaceDotWithComma() {
+const jsonFilePath = path.resolve(__dirname, '../coverages/coverages.json');
+
+
+ async function replaceDotWithComma() {
   const updateJsonFile = async (filePath, newData) => {
     try {
-      await fs.promises.writeFile(filePath, JSON.stringify(newData, null, 2), 'utf8');
+      await fs.promises.appendFile(filePath, JSON.stringify(newData, null, 2), 'utf8');
       console.log('File JSON aggiornato correttamente:', filePath);
     } catch (error) {
       throw new Error(`Errore durante l'aggiornamento del file JSON: ${error}`);
@@ -13,7 +16,13 @@ export  async function replaceDotWithComma() {
 
   const readJsonFile = async (filePath) => {
     try {
-      const dataJson = await fs.promises.readFile(filePath, 'utf8');
+      const stream = fs.createReadStream(filePath, { encoding: 'utf8' });
+      let dataJson = '';
+
+      for await (const chunk of stream) {
+        dataJson += chunk;
+      }
+
       return JSON.parse(dataJson);
     } catch (error) {
       throw new Error(`Errore durante la lettura del file JSON: ${error}`);
@@ -34,9 +43,12 @@ export  async function replaceDotWithComma() {
       }
     }
 
+    await fs.promises.truncate(filePath, 0);
     await updateJsonFile(filePath, dataJson);
   } catch (error) {
     console.error(error);
   }
 }
-
+module.exports = {
+  replaceDotWithComma
+};
