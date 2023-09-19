@@ -1,8 +1,8 @@
 {
   "name": "extractionkfs",
   "version": "1.0.0",
+  "type": "module",
   "description": "Analysis Extraction JSON KFS",
-  "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "esm": "^3.2.25",
     "fs": "0.0.1-security",
     "path": "^0.12.7",
     "puppeteer": "^21.1.1"
