@@ -2,7 +2,7 @@
     "userId": "freddy.herrera@dit.kyocera.com",
     "password": "Kyo1712!",
     "pageLogin": "https://fs-eu.kyocera.biz/Account/Login",
-    "pageKfs": "https://fs-eu.kyocera.biz/Device/PD_KYRFH0738620/Counter",
+    "pageKfs": "https://fs-eu.kyocera.biz/Device/",
 	"serverDB": "172.17.136.101",
 	"userDB": "AppKyoKFS",
 	"passwordDB": "Kyocera$KFS$2023",
