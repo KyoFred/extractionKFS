@@ -1,9 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
-const jsonFilePath = path.resolve(__dirname, '../coverages/coverages.json');
-
-
  async function replaceDotWithComma() {
   const updateJsonFile = async (filePath, newData) => {
     try {

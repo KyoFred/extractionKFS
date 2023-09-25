@@ -2,5 +2,10 @@
     "userId": "freddy.herrera@dit.kyocera.com",
     "password": "Kyo1712!",
     "pageLogin": "https://fs-eu.kyocera.biz/Account/Login",
-    "pageKfs": "https://fs-eu.kyocera.biz/Device/PD_KYRFH0738620/Counter"
+    "pageKfs": "https://fs-eu.kyocera.biz/Device/PD_KYRFH0738620/Counter",
+	"serverDB": "172.17.136.101",
+	"userDB": "AppKyoKFS",
+	"passwordDB": "Kyocera$KFS$2023",
+	"queryDbListDevice": "SELECT DeviceId FROM [HDA].[dbo].[KyoKFSDevice] a with (nolock) Inner join KyoKFSGroups b with (nolock) on a.GroupId = b.GroupId Inner join KyoKFSGroups d with (nolock) on b.OriginGroupId = d.GroupId where manufacturer in ('Kyocera', 'KYOCERA');",
+	"queryDbListDeviceTop": "SELECT TOP 100 DeviceId FROM [HDA].[dbo].[KyoKFSDevice] a WITH (NOLOCK) INNER JOIN KyoKFSGroups b WITH (NOLOCK) ON a.GroupId = b.GroupId INNER JOIN KyoKFSGroups d WITH (NOLOCK) ON b.OriginGroupId = d.GroupId WHERE manufacturer IN ('Kyocera', 'KYOCERA');"
   }

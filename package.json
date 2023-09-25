@@ -7,19 +7,21 @@
     "start": "node ./src/index.cjs",
     "dev": "nodemon ./src/index.cjs",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel src -d dist"
+    "build": "babel src -d dist && terser dist/*.js -o dist/minified.js --compress --mangle"
   },
   "author": "F.H.",
   "license": "ISC",
   "dependencies": {
     "esm": "^3.2.25",
     "fs": "0.0.1-security",
+    "mssql": "^10.0.1",
     "path": "^0.12.7",
     "puppeteer": "^21.1.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.22.15",
     "@babel/core": "^7.22.20",
-    "@babel/preset-env": "^7.22.20"
+    "@babel/preset-env": "^7.22.20",
+    "terser": "^5.19.4"
   }
 }
