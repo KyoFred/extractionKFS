@@ -1,4 +1,5 @@
- async function replaceDotWithComma() {
+ 
+ async function replaceDotWithComma(jsonFilePath,fs) {
   const updateJsonFile = async (filePath, newData) => {
     try {
       await fs.promises.appendFile(filePath, JSON.stringify(newData, null, 2), 'utf8');

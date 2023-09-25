@@ -5,6 +5,7 @@ const path = require('path');
 const jsonFilePath = path.resolve(__dirname, '../coverages/coverages.json');
 const MAX_RETRY = 3;
 const TIMEOUT = 5000;
+const DeviceID = 'PD_KYRFH0738620';
 
 async function connect() {
   try {
@@ -13,7 +14,7 @@ async function connect() {
     const userId = settings.userId;
     const password = settings.password;
     const pageLogin = settings.pageLogin;
-    const pageKfs = settings.pageKfs;
+    const pageKfs = settings.pageKfs + DeviceID + '/Counter';
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 await page.goto(pageLogin, { timeout: TIMEOUT });
@@ -31,7 +32,7 @@ await page.goto(pageKfs, { timeout: TIMEOUT });
     await fs.promises.writeFile(jsonFilePath, JSON.stringify(jsonData, null, 2), 'utf8');
     console.log('JSON salvato con successo nel file:', jsonFilePath);
     await browser.close();
-replaceDotWithComma(jsonFilePath);
+    replaceDotWithComma(jsonFilePath, fs);
   } catch (error) {
     console.error('Errore:', error);
           console.error('Problema di connessione, numero massimo di tentativi raggiunto.');
