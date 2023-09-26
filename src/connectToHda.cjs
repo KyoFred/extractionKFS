@@ -19,16 +19,16 @@ async function getSqlConnection(settings) {
   return pool;
 }
 
-async function connectToSqlServer() {
+async function connectToSqlServer(settingsFilePath,listDeviceFilePath) {
   try {
-    const settingsData = fs.readFileSync('../data/settings.json');
+    const settingsData = fs.readFileSync(settingsFilePath);
     const settings = JSON.parse(settingsData);
     const connection = await getSqlConnection(settings);
    // console.log('connection: ',connection);
-    const result = await query(settings.queryDbListDeviceTop);
+    const result = await query(settings.queryDbListDeviceSmall);
     const jsonData = JSON.stringify(result.recordset);
     try {
-      fs.writeFileSync('../data/listDevices.json', jsonData);
+      fs.writeFileSync(listDeviceFilePath, jsonData);
       console.log(`Dati della query salvati nel file listDevices.json. Numero di record salvati: ${result.recordset.length}`);
     } catch (error) {
       console.error('Errore durante il salvataggio del file:', error);
@@ -39,5 +39,7 @@ async function connectToSqlServer() {
     console.error('Errore durante la connessione al database:', error);
   }
 }
+module.exports = {
+  connectToSqlServer
+};
 
-connectToSqlServer();
