@@ -28,13 +28,13 @@
     const filePath = jsonFilePath;
     const dataJson = await readJsonFile(filePath);
 
-    for (let key in dataJson.coverageData) {
-      if (typeof dataJson.coverageData[key] === 'number') {
-        const updatedValue = String(dataJson.coverageData[key]).replace('.', ',');
-        dataJson.coverageData[key] = updatedValue;
-      } else if (typeof dataJson.coverageData[key] === 'string' && dataJson.coverageData[key].includes('.')) {
+    for (let key in dataJson.data.coverageData) {
+      if (typeof dataJson.data.coverageData[key] === 'number') {
+        const updatedValue = String(dataJson.data.coverageData[key]).replace('.', ',');
+        dataJson.data.coverageData[key] = updatedValue;
+      } else if (typeof dataJson.data.coverageData[key] === 'string' && dataJson.data.coverageData[key].includes('.')) {
         const updatedValue = dataJson.coverageData[key].replace('.', ',');
-        dataJson.coverageData[key] = updatedValue;
+        dataJson.data.coverageData[key] = updatedValue;
       }
     }
 
