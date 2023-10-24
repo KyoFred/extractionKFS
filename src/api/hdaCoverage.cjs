@@ -33,10 +33,10 @@ const avviaServer = async () => {
     const app = express();
     app.use(express.json());
 
-    const queryDbListDeviceSmall = settings.queryDbListDeviceTop100;
+    const queryBD = settings.queryDbListDevice;
     app.get('/api/listDevice', async (req, res) => {
       try {
-        const result = await pool.request().query(queryDbListDeviceSmall);
+        const result = await pool.request().query(queryBD);
         res.send(result.recordset);
       } catch (error) {
         console.error(error);

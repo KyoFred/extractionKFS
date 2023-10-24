@@ -37,7 +37,7 @@ function gestisciElementoJSON(jsonData) {
 
 
 
-async function elaboraFileJSON() {
+async function InsertToDB() {
     const filePath = path.join(__dirname, '../data/listDeviceUpdate.json');
     const jsonData = leggiJSONDaFile(filePath);
 
@@ -91,4 +91,4 @@ function controllaCoverageData(jsonData) {
       }
     }
   }
-elaboraFileJSON();
+  InsertToDB();
