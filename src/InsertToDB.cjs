@@ -37,7 +37,8 @@ function gestisciElementoJSON(jsonData) {
 
 
 
-async function InsertToDB() {
+async function insertToDB(q) {
+
     const filePath = path.join(__dirname, '../data/listDeviceUpdate.json');
     const jsonData = leggiJSONDaFile(filePath);
 
@@ -45,10 +46,13 @@ async function InsertToDB() {
         console.error('Non è stato possibile leggere i dati JSON dal file.', jsonData);
         return;
     }
+if(q){
+  const promises = jsonData.map(elementoJSON => gestisciElementoJSON(elementoJSON));
+  await Promise.all(promises);
+}
+    
 
-    const promises = jsonData.map(elementoJSON => gestisciElementoJSON(elementoJSON));
-
-    await Promise.all(promises);
+  
 }
 
 function controllaCoverageData(jsonData) {
@@ -91,4 +95,7 @@ function controllaCoverageData(jsonData) {
       }
     }
   }
-  InsertToDB();
+  
+  module.exports = {
+    insertToDB
+  };
