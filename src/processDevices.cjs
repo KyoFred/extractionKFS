@@ -1,7 +1,6 @@
 const MAX_RETRY = 3;
 const TIMEOUT = 30000;
 const listDeviceFilePath = '../data/listDevices.json';
-const { login } = require('./login.cjs');
 const { Builder, By, until } = require('selenium-webdriver');
 const fs = require('fs').promises;
 
