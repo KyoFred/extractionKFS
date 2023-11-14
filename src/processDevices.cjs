@@ -1,6 +1,8 @@
+
+const { writeToLog } = require('./writeToLog.cjs');
 const MAX_RETRY = 3;
 const TIMEOUT = 30000;
-const listDeviceFilePath = '../data/listDevices.json';
+const listDeviceFilePath = '../data/listDevice.json';
 const { Builder, By, until } = require('selenium-webdriver');
 const fs = require('fs').promises;
 
@@ -13,7 +15,6 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
       await driver.findElement(By.id('user-id')).sendKeys(userId);
       await driver.findElement(By.id('password')).sendKeys(password);
       await driver.findElement(By.id('login-btn')).click();
-      console.log('Login eseguito:', pageLogin);
       await driver.wait(until.urlIs(pageLogin), TIMEOUT);
       const loginElement = await driver.wait(until.elementLocated(By.id('hd-login-user-name')), TIMEOUT);
       if (!loginElement) {
@@ -22,55 +23,63 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
       } else {
         console.log('Accesso riuscito.');
         const jsonDataArray = [];
+        const jsonDataError = [];
         for (const device of devices) {
           const DeviceId = device['DeviceId'];
-          console.log('DeviceId -->', DeviceId);
           const pageKfsn = pageKfs + DeviceId + '/Counter';
-          console.log('pageKfsn eseguito:', pageKfsn, " DeviceId", DeviceId);
-          const jsonFilePathn = jsonFilePath + '/' + DeviceId + '.json';
-          const jsonFilePathError = jsonFilePath + '/error/' + DeviceId + '.json';
+         // const jsonFilePathn = jsonFilePath + '/' + DeviceId + '.json';
+          const jsonFilePathError = jsonFilePath + '/error/DeviceError.json';
           let retryCount = 0;
-while (retryCount < MAX_RETRY) {
-          try {
-            await driver.get(pageKfsn);
-            await driver.wait(until.urlIs(pageKfsn), TIMEOUT);
-            console.log('Pagina Kfs raggiunta:', pageKfsn);
-          await driver.wait(until.elementLocated(By.tagName('h1')), TIMEOUT);
-           try {
-  const coveragesElement = await driver.findElement(By.id('coverages'));
-  console.log('jsonDataArray: ', coveragesElement);
-  const coveragesText = await coveragesElement.getAttribute('textContent');
-  const jsonData = JSON.parse(coveragesText);
-  jsonDataArray.push(jsonData);
-  device['status'] = 'ok';
-  device['data'] = jsonData;
-  console.log('jsonDataArray: ', jsonDataArray);
-break; // Esci dal ciclo while in caso di successo
-} catch (error) {
-  if (error.name === 'NoSuchElementError') {
-    console.log('Elemento #coverages non trovato. Salvataggio del testo dai tag h1 e h2.');
-    const h1Text = await driver.findElement(By.tagName('h1')).getText();
-    const h2Text = await driver.findElement(By.tagName('h2')).getText();
-    const errorData = { h1: h1Text, h2: h2Text };
-    console.log('errorData: ', errorData,'jsonFilePathError',jsonFilePathError);
-    await fs.writeFile(jsonFilePathError, JSON.stringify(errorData, null, 2), 'utf8');
-    device['status'] = 'error';
-    device['errorMessage'] = h2Text;
-break; // Esci dal ciclo while in caso di errore
-  } else {
-   
-    await fs.writeFile(jsonFilePathn, JSON.stringify(jsonDataArray, null, 2), 'utf8');
-    console.log('JSON salvato con successo nel file:', jsonFilePathn,);
-  }
-} 
-          } catch (error) {
-            console.error('Errore controlla:', error);
-            retryCount++;
+          while (retryCount < MAX_RETRY) {
+            try {
+              await driver.get(pageKfsn);
+              await driver.wait(until.urlIs(pageKfsn), TIMEOUT);
+              console.log('Pagina Kfs raggiunta:', pageKfsn);
+              await driver.wait(until.elementLocated(By.tagName('h1')), TIMEOUT);
+              try {
+                const coveragesElement = await driver.findElement(By.id('coverages'));
+                const coveragesText = await coveragesElement.getAttribute('textContent');
+                const   jsonData = JSON.parse(coveragesText);
+               
+             
+                
+                if (jsonData === null) {
+                  device['status'] = 'null';
+                  device['data'] = {} 
+                  console.log('jsonData null ', jsonData);
+                } else {
+                  console.log('jsonData ok ', jsonData);
+                  device['status'] = 'ok';
+                  device['data'] = jsonData;
+                }
+                jsonDataArray.push(jsonData);
+            //  (coveragesElement === null) ? device['data'] = 'null' : device['data'] = jsonData;
+                break; // Esci dal ciclo while in caso di successo
+              } catch (error) {
+                if (error.name === 'NoSuchElementError') {
+                  console.log('Elemento #coverages non trovato. Salvataggio del testo dai tag h1 e h2.');
+                  const h1Text = await driver.findElement(By.tagName('h1')).getText();
+                  const h2Text = await driver.findElement(By.tagName('h2')).getText();
+                  const errorData = { h1: h1Text, h2: h2Text, DeviceId: DeviceId };
+                  console.log('errorData: ---> ', errorData, 'jsonFilePathError: ', jsonFilePathError);
+                  jsonDataError.push(errorData);
+                 
+                  device['status'] = 'error';
+                  device['errorMessage'] = h2Text;
+                  break; // Esci dal ciclo while in caso di errore
+                } else {
+             //     await fs.writeFile(jsonFilePathn, JSON.stringify(jsonDataArray, null, 2), 'utf8');
+                  console.log('jsonDataArray: -->', jsonDataArray);
+                }
+              }
+            } catch (error) {
+              console.error('Errore controlla:', error);
+              retryCount++;
+            }
           }
-}
-        
           await fs.writeFile(listDeviceFilePathUpdate, JSON.stringify(devices, null, 2), 'utf8');
-          console.log('JSON salvato con successo nel file:',listDeviceFilePathUpdate);
+          await fs.writeFile(jsonFilePathError, JSON.stringify(jsonDataError, null, 2), 'utf8');
+          console.log('JSON salvato con successo nel file:', listDeviceFilePathUpdate);
         }
       }
     } catch (error) {

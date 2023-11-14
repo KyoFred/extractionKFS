@@ -12,12 +12,14 @@
   "author": "F.H.",
   "license": "ISC",
   "dependencies": {
+    "async-sema": "^3.1.1",
     "axios": "^1.5.1",
     "esm": "^3.2.25",
     "express": "^4.18.2",
     "fs": "0.0.1-security",
     "mssql": "^10.0.1",
     "node-cron": "^3.0.2",
+    "p-limit": "^4.0.0",
     "path": "^0.12.7",
     "puppeteer": "^21.1.1",
     "selenium": "^2.20.0",
@@ -25,8 +27,9 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.22.15",
-    "@babel/core": "^7.22.20",
-    "@babel/preset-env": "^7.22.20",
+    "@babel/core": "^7.23.2",
+    "@babel/plugin-proposal-numeric-separator": "^7.18.6",
+    "@babel/preset-env": "^7.23.2",
     "terser": "^5.19.4"
   }
 }
