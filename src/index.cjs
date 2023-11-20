@@ -10,7 +10,7 @@ const cron = require('node-cron');
 
 const settingsFilePath = path.resolve(__dirname, '../data/settings.json');
 const jsonFilePath = path.resolve(__dirname, '../coverages/');
-const listDeviceFilePath = path.resolve(__dirname, '../data/listDevices.json');
+const listDevicePath = path.resolve(__dirname, '../data/listDevices.json');
 const listDeviceFilePathUpdate = path.resolve(__dirname, '../data/listDeviceUpdate.json');
 // Percorso del file di log
 
@@ -36,7 +36,7 @@ async function startProcessKfs() {
 
     try {
       console.log('---ListDevices Start ---');
-      await listDevices(listDeviceFilePath);
+   //  await listDevices(listDevicePath);
       console.log('--- ListDevices fine ---');
       
     } catch (error) {
@@ -46,7 +46,7 @@ async function startProcessKfs() {
 
     try {
       console.log('--- Process Devices start---');
-      await processDevices(userId, password, pageLogin, pageKfs, jsonFilePath, listDeviceFilePathUpdate);
+    //  await processDevices(userId, password, pageLogin, pageKfs, jsonFilePath, listDeviceFilePathUpdate,listDevicePath);
       console.log('--- Process Devices fine ---');
     } catch (error) {
       console.error('Errore durante l\'esecuzione di processDevices:', error);
@@ -56,7 +56,7 @@ async function startProcessKfs() {
     try {
       console.log('--- InsertToDB start---');
       const q = true;
-     // await insertToDB(q);
+      await insertToDB(q);
       console.log('--- InsertToDB fine ---');
     } catch (error) {
       console.error('Errore durante l\'esecuzione di InsertToDB:', error);

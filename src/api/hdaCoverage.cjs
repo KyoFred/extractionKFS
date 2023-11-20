@@ -33,10 +33,10 @@ const avviaServer = async () => {
     const app = express();
     app.use(express.json());
 
-    const queryBD = settings.queryDbListDeviceB;
+    const queryBD = settings.queryDbListDeviceC;
     app.get('/api/listDevice', async (req, res) => {
       try {
-        const result = await pool.request().query(queryBD);
+        const result = await pool.request().query(`SELECT * FROM TABUserDef_DataForm_P22C WHERE DeviceId = 'PD_KYRFC9Y20946';`);
         res.send(result.recordset);
       } catch (error) {
         console.error(error);
@@ -60,20 +60,22 @@ const avviaServer = async () => {
 
     app.post('/api/inDevice', async (req, res) => {
       const jsonData = req.body;
+      const jsonDataString = JSON.stringify(jsonData.data);
       const query = `
         DECLARE @sParam nvarchar(50) = 'P22C'
         DECLARE @sValue nvarchar(10) = NULL
         DECLARE @sPrefix nvarchar(1) = 'X'
         EXEC [dbo].[spHDANET_GetNewID] @sParam, @sValue OUTPUT, @sPrefix
-        INSERT INTO TABUserDef_DataForm_P22C (IDProtocollo, DeviceID, lastUpdate, startPeriod, endPeriod, blackTotalAverage, blackTotalUsagePage, cyanTotalAverage, cyanTotalUsagePage, magentaTotalAverage, magentaTotalUsagePage, yellowTotalAverage, yellowTotalUsagePage, blackTotalCopyAverage, blackTotalCopyUsagePage, cyanCopyAverage, cyanCopyUsagePage, magentaCopyAverage, magentaCopyUsagePage, yellowCopyAverage, yellowCopyUsagePage, blackTotalFAXAverage, blackTotalFAXUsagePage, blackTotalPrinterAverage, blackTotalPrinterUsagePage, cyanPrinterAverage, cyanPrinterUsagePage, magentaPrinterAverage, magentaPrinterUsagePage, yellowPrinterAverage, yellowPrinterUsagePage)
-        VALUES (@sValue, '${jsonData.DeviceId}', '${jsonData.data.lastUpdate}', '${jsonData.data.startPeriod}', '${jsonData.data.endPeriod}', '${jsonData.data.coverageData.blackTotalAverage}', '${jsonData.data.coverageData.blackTotalUsagePage}', '${jsonData.data.coverageData.cyanTotalAverage}', '${jsonData.data.coverageData.cyanTotalUsagePage}', '${jsonData.data.coverageData.magentaTotalAverage}', '${jsonData.data.coverageData.magentaTotalUsagePage}', '${jsonData.data.coverageData.yellowTotalAverage}', '${jsonData.data.coverageData.yellowTotalUsagePage}', '${jsonData.data.coverageData.blackTotalCopyAverage}', '${jsonData.data.coverageData.blackTotalCopyUsagePage}', '${jsonData.data.coverageData.cyanCopyAverage}', '${jsonData.data.coverageData.cyanCopyUsagePage}', '${jsonData.data.coverageData.magentaCopyAverage}', '${jsonData.data.coverageData.magentaCopyUsagePage}', '${jsonData.data.coverageData.yellowCopyAverage}', '${jsonData.data.coverageData.yellowCopyUsagePage}', '${jsonData.data.coverageData.blackTotalFAXAverage}', '${jsonData.data.coverageData.blackTotalFAXUsagePage}', '${jsonData.data.coverageData.blackTotalPrinterAverage}', '${jsonData.data.coverageData.blackTotalPrinterUsagePage}', '${jsonData.data.coverageData.cyanPrinterAverage}', '${jsonData.data.coverageData.cyanPrinterUsagePage}', '${jsonData.data.coverageData.magentaPrinterAverage}', '${jsonData.data.coverageData.magentaPrinterUsagePage}', '${jsonData.data.coverageData.yellowPrinterAverage}', '${jsonData.data.coverageData.yellowPrinterUsagePage}')`;
+        INSERT INTO TABUserDef_DataForm_P22C (IDProtocollo, DeviceID, lastUpdate, startPeriod, endPeriod, blackTotalAverage, blackTotalUsagePage, cyanTotalAverage, cyanTotalUsagePage, magentaTotalAverage, magentaTotalUsagePage, yellowTotalAverage, yellowTotalUsagePage, blackTotalCopyAverage, blackTotalCopyUsagePage, cyanCopyAverage, cyanCopyUsagePage, magentaCopyAverage, magentaCopyUsagePage, yellowCopyAverage, yellowCopyUsagePage, blackTotalFAXAverage, blackTotalFAXUsagePage, blackTotalPrinterAverage, blackTotalPrinterUsagePage, cyanPrinterAverage, cyanPrinterUsagePage, magentaPrinterAverage, magentaPrinterUsagePage, yellowPrinterAverage, yellowPrinterUsagePage,completejson)
+        VALUES (@sValue, '${jsonData.DeviceId}', '${jsonData.data.lastUpdate}', '${jsonData.data.startPeriod}', '${jsonData.data.endPeriod}', '${jsonData.data.coverageData.blackTotalAverage}', '${jsonData.data.coverageData.blackTotalUsagePage}', '${jsonData.data.coverageData.cyanTotalAverage}', '${jsonData.data.coverageData.cyanTotalUsagePage}', '${jsonData.data.coverageData.magentaTotalAverage}', '${jsonData.data.coverageData.magentaTotalUsagePage}', '${jsonData.data.coverageData.yellowTotalAverage}', '${jsonData.data.coverageData.yellowTotalUsagePage}', '${jsonData.data.coverageData.blackTotalCopyAverage}', '${jsonData.data.coverageData.blackTotalCopyUsagePage}', '${jsonData.data.coverageData.cyanCopyAverage}', '${jsonData.data.coverageData.cyanCopyUsagePage}', '${jsonData.data.coverageData.magentaCopyAverage}', '${jsonData.data.coverageData.magentaCopyUsagePage}', '${jsonData.data.coverageData.yellowCopyAverage}', '${jsonData.data.coverageData.yellowCopyUsagePage}', '${jsonData.data.coverageData.blackTotalFAXAverage}', '${jsonData.data.coverageData.blackTotalFAXUsagePage}', '${jsonData.data.coverageData.blackTotalPrinterAverage}', '${jsonData.data.coverageData.blackTotalPrinterUsagePage}', '${jsonData.data.coverageData.cyanPrinterAverage}', '${jsonData.data.coverageData.cyanPrinterUsagePage}', '${jsonData.data.coverageData.magentaPrinterAverage}', '${jsonData.data.coverageData.magentaPrinterUsagePage}', '${jsonData.data.coverageData.yellowPrinterAverage}', '${jsonData.data.coverageData.yellowPrinterUsagePage}','${jsonDataString}
+        ')`;
     
       try {
         const result2 = await pool.request().query(query);
-        res.status(200).send({ message: 'Dati inseriti correttamente', result: result2 });
+        res.status(200).send({ message: `Dati inseriti correttamente - ${jsonData.DeviceId} `, result: result2 });
       } catch (error) {
         console.error(error);
-        res.status(500).send('Errore nell\'inserimento dei dati: ' + error.message);
+        res.status(500).send(`Errore nell inserimento dei dati: ${jsonData.DeviceId} ` , error.message);
       }
     });
 
@@ -90,7 +92,7 @@ const avviaServer = async () => {
       }
     });
 
-    const port = 3000;
+    const port = 3001;
     app.listen(port, () => {
       console.log(`API in ascolto sulla porta ${port}`);
     });

@@ -14,14 +14,15 @@ function leggiJSONDaFile(filePath) {
 }
 
 function gestisciElementoJSON(jsonData) {
-  if (jsonData.status === "error" || jsonData.data === null) {
-    console.error('Errore o "data" null per DeviceId:', jsonData.DeviceId, "--", jsonData.status, "--", jsonData.data);
+  if (jsonData.status === "error" || jsonData.status === 'null' || jsonData.length <= 0 || !jsonData.data) {
+    console.error('Errore o "data" null per DeviceId:', jsonData.DeviceId, "--", jsonData.status, "--", jsonData.data,"--", jsonData.length);
     return;
   } else {
+    console.log(jsonData.DeviceId, "--", jsonData.length);
     controllaCoverageData(jsonData);
     const options = {
       hostname: 'localhost',
-      port: 3000,
+      port: 3001,
       path: '/api/inDevice',
       method: 'POST',
       headers: {
@@ -48,6 +49,7 @@ function gestisciElementoJSON(jsonData) {
 
 async function insertToDB(q) {
   const filePath = path.join(__dirname, '../data/listDeviceUpdate.json');
+  console.log('filePath', filePath)
   const jsonData = leggiJSONDaFile(filePath);
   if (!jsonData) {
     console.error('Non è stato possibile leggere i dati JSON dal file.', jsonData);
@@ -63,7 +65,7 @@ async function insertToDB(q) {
 
       requestCount++;
       if (requestCount % 1000 === 0) {
-        await sleep(5000); // Timeout of 5 seconds
+        await sleep(10000); // Timeout of 5 seconds
       }
     }
   }

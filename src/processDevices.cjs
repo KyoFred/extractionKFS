@@ -2,13 +2,13 @@
 const { writeToLog } = require('./writeToLog.cjs');
 const MAX_RETRY = 3;
 const TIMEOUT = 30000;
-const listDeviceFilePath = '../data/listDevice.json';
+//const listDeviceFilePath = '../data/listDevice.json';
 const { Builder, By, until } = require('selenium-webdriver');
 const fs = require('fs').promises;
 
-async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath, listDeviceFilePathUpdate) {
+async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath, listDeviceFilePathUpdate,listDevicePath) {
   try {
-    const devices = await leggiJSON(listDeviceFilePath);
+    const devices = await leggiJSON(listDevicePath);
     const driver = await new Builder().forBrowser('chrome').build();
     try {
       await driver.get(pageLogin);
