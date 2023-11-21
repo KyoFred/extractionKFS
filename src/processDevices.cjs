@@ -1,17 +1,18 @@
-
-const { writeToLog } = require('./writeToLog.cjs');
+const { setCookie } = require('./cookie.cjs');
 const MAX_RETRY = 3;
 const TIMEOUT = 30000;
-//const listDeviceFilePath = '../data/listDevice.json';
 const { Builder, By, until } = require('selenium-webdriver');
 const fs = require('fs').promises;
 
-async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath, listDeviceFilePathUpdate,listDevicePath) {
+async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath, listDeviceFilePathUpdate, listDevicePath) {
   try {
     const devices = await leggiJSON(listDevicePath);
     const driver = await new Builder().forBrowser('chrome').build();
     try {
       await driver.get(pageLogin);
+       await setCookie(driver);
+      console.log('set cookie'); // Imposta i cookie nel browser
+      await driver.navigate().refresh(); // Aggiorna la pagina per applicare i cookie 
       await driver.findElement(By.id('user-id')).sendKeys(userId);
       await driver.findElement(By.id('password')).sendKeys(password);
       await driver.findElement(By.id('login-btn')).click();
@@ -27,25 +28,20 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
         for (const device of devices) {
           const DeviceId = device['DeviceId'];
           const pageKfsn = pageKfs + DeviceId + '/Counter';
-         // const jsonFilePathn = jsonFilePath + '/' + DeviceId + '.json';
           const jsonFilePathError = jsonFilePath + '/error/DeviceError.json';
           let retryCount = 0;
           while (retryCount < MAX_RETRY) {
             try {
               await driver.get(pageKfsn);
               await driver.wait(until.urlIs(pageKfsn), TIMEOUT);
-              console.log('Pagina Kfs raggiunta:', pageKfsn);
               await driver.wait(until.elementLocated(By.tagName('h1')), TIMEOUT);
               try {
                 const coveragesElement = await driver.findElement(By.id('coverages'));
                 const coveragesText = await coveragesElement.getAttribute('textContent');
-                const   jsonData = JSON.parse(coveragesText);
-               
-             
-                
+                const jsonData = JSON.parse(coveragesText);
                 if (jsonData === null) {
                   device['status'] = 'null';
-                  device['data'] = {} 
+                  device['data'] = {};
                   console.log('jsonData null ', jsonData);
                 } else {
                   console.log('jsonData ok ', jsonData);
@@ -53,7 +49,6 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
                   device['data'] = jsonData;
                 }
                 jsonDataArray.push(jsonData);
-            //  (coveragesElement === null) ? device['data'] = 'null' : device['data'] = jsonData;
                 break; // Esci dal ciclo while in caso di successo
               } catch (error) {
                 if (error.name === 'NoSuchElementError') {
@@ -63,12 +58,10 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
                   const errorData = { h1: h1Text, h2: h2Text, DeviceId: DeviceId };
                   console.log('errorData: ---> ', errorData, 'jsonFilePathError: ', jsonFilePathError);
                   jsonDataError.push(errorData);
-                 
                   device['status'] = 'error';
                   device['errorMessage'] = h2Text;
                   break; // Esci dal ciclo while in caso di errore
                 } else {
-             //     await fs.writeFile(jsonFilePathn, JSON.stringify(jsonDataArray, null, 2), 'utf8');
                   console.log('jsonDataArray: -->', jsonDataArray);
                 }
               }
@@ -77,15 +70,16 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
               retryCount++;
             }
           }
-          await fs.writeFile(listDeviceFilePathUpdate, JSON.stringify(devices, null, 2), 'utf8');
-          await fs.writeFile(jsonFilePathError, JSON.stringify(jsonDataError, null, 2), 'utf8');
-          console.log('JSON salvato con successo nel file:', listDeviceFilePathUpdate);
         }
+        await fs.writeFile(listDeviceFilePathUpdate, JSON.stringify(devices, null, 2), 'utf8');
+        await fs.writeFile(jsonFilePathError, JSON.stringify(jsonDataError, null, 2), 'utf8');
+        console.log('JSON salvato con successo nel file:', listDeviceFilePathUpdate);
       }
     } catch (error) {
       console.error('Errore durante il processo di login:', error);
     } finally {
-      console.log('chiude la sesione');
+      console.log('chiude la sessione');
+      alert("chiude session");
       await driver.quit();
     }
   } catch (error) {
