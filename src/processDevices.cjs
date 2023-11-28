@@ -3,6 +3,7 @@ const MAX_RETRY = 3;
 const TIMEOUT = 30000;
 const { Builder, By, until } = require('selenium-webdriver');
 const fs = require('fs').promises;
+const jsonFilePathError = '../coverages/error/DeviceError.json';
 
 async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath, listDeviceFilePathUpdate, listDevicePath) {
   try {
@@ -24,10 +25,14 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
        // console.log('Accesso riuscito.');
         const jsonDataArray = [];
         const jsonDataError = [];
+      
+        let devicesOk = 0;
+        let devicesError = 0;
         for (const device of devices) {
+          const totalDevices= devices.length;
           const DeviceId = device['DeviceId'];
           const pageKfsn = pageKfs + DeviceId + '/Counter';
-          const jsonFilePathError = jsonFilePath + '/error/DeviceError.json';
+          
           let retryCount = 0;
           while (retryCount < MAX_RETRY) {
             try {
@@ -41,13 +46,16 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
                 if (jsonData === null) {
                   device['status'] = 'null';
                   device['data'] = {};
-                //  console.log('jsonData null ', jsonData);
+                  devicesError ++;
+               console.log('jsonData null ','--',devicesError,'Di: ', totalDevices);
                 } else {
-                 // console.log('jsonData ok ', jsonData);
+                  devicesOk ++;
+               console.log('jsonData ok ','--',devicesOk,'Di: ', totalDevices);
                   device['status'] = 'ok';
                   device['data'] = jsonData;
+                  
                 }
-                jsonDataArray.push(jsonData);
+                jsonDataArray.push(device);
                 break; // Esci dal ciclo while in caso di successo
               } catch (error) {
                 if (error.name === 'NoSuchElementError') {
@@ -55,7 +63,7 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
                   const h1Text = await driver.findElement(By.tagName('h1')).getText();
                   const h2Text = await driver.findElement(By.tagName('h2')).getText();
                   const errorData = { h1: h1Text, h2: h2Text, DeviceId: DeviceId };
-                  console.log('errorData: ---> ', errorData, 'jsonFilePathError: ', jsonFilePathError);
+                  console.log('errorData: ---> ', errorData, 'totale errori', devicesError);
                   jsonDataError.push(errorData);
                   device['status'] = 'error';
                   device['errorMessage'] = h2Text;
@@ -70,9 +78,10 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
             }
           }
         }
-        await fs.writeFile(listDeviceFilePathUpdate, JSON.stringify(devices, null, 2), 'utf8');
+        console.log('JSON salvato con successo nel file - listDeviceFilePathUpdate:', listDeviceFilePathUpdate,'total',devicesOk );
+        await fs.writeFile(listDeviceFilePathUpdate, JSON.stringify(jsonDataArray, null, 2), 'utf8');
+        console.log('JSON Errore salvato con successo nel file - jsonFilePathError:', jsonFilePathError,'total',devicesError);
         await fs.writeFile(jsonFilePathError, JSON.stringify(jsonDataError, null, 2), 'utf8');
-      //  console.log('JSON salvato con successo nel file:', listDeviceFilePathUpdate);
       }
     } catch (error) {
       console.error('Errore durante il processo di login:', error);
