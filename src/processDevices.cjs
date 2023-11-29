@@ -8,6 +8,7 @@ const jsonFilePathError = '../coverages/error/DeviceError.json';
 async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath, listDeviceFilePathUpdate, listDevicePath) {
   try {
     const devices = await leggiJSON(listDevicePath);
+    const devicesUp = await leggiJSON(listDeviceFilePathUpdate);
     const driver = await new Builder().forBrowser('chrome').build();
     try {
       await driver.get(pageLogin);
@@ -31,6 +32,11 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
         for (const device of devices) {
           const totalDevices= devices.length;
           const DeviceId = device['DeviceId'];
+          const deviceInDevicesUp = devicesUp.find(device => device.DeviceId === DeviceId);
+          if(!deviceInDevicesUp){
+            console.log("Non ce... ",DeviceId);
+         
+          
           const pageKfsn = pageKfs + DeviceId + '/Counter';
           
           let retryCount = 0;
@@ -78,6 +84,7 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
             }
           }
         }
+        }
         console.log('JSON salvato con successo nel file - listDeviceFilePathUpdate:', listDeviceFilePathUpdate,'total',devicesOk );
         await fs.writeFile(listDeviceFilePathUpdate, JSON.stringify(jsonDataArray, null, 2), 'utf8');
         console.log('JSON Errore salvato con successo nel file - jsonFilePathError:', jsonFilePathError,'total',devicesError);
@@ -105,6 +112,7 @@ async function leggiJSON(nomeFile) {
     throw error;
   }
 }
+
 
 module.exports = {
   processDevices
