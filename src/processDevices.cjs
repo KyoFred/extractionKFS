@@ -54,14 +54,15 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
                   device['data'] = {};
                   devicesError ++;
                console.log('jsonData null ','--',devicesError,'Di: ', totalDevices);
+               jsonDataError.push(device);
                 } else {
                   devicesOk ++;
                console.log('jsonData ok ','--',devicesOk,'Di: ', totalDevices);
                   device['status'] = 'ok';
                   device['data'] = jsonData;
-                  
+                  jsonDataArray.push(device);
                 }
-                jsonDataArray.push(device);
+               
                 break; // Esci dal ciclo while in caso di successo
               } catch (error) {
                 if (error.name === 'NoSuchElementError') {
