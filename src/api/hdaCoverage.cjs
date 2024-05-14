@@ -46,13 +46,30 @@ const avviaServer = async () => {
         res.status(500).send('Errore nel recupero dei dati.');
       }
     });
-
-    app.put('/api/deviceUpdate/:id', async (req, res) => {
+    app.get('/api/listDevice', async (req, res) => {
       try {
-        const jsonData = req.body;
-        const jsonDataString = JSON.stringify(jsonData.data);
-        const id = req.params.id;        
-        console.log('Inserimento put :',jsonData);
+        const query = `SELECT DeviceId FROM [HDA].[dbo].[KyoKFSDevice] a with (nolock) Inner join KyoKFSGroups b with (nolock) on a.GroupId = b.GroupId
+        Inner join KyoKFSGroups d with (nolock) on b.OriginGroupId = d.GroupId where manufacturer in ('Kyocera', 'KYOCERA')`;
+        const result = await pool.request()
+          .input('id', sql.VarChar, req.params.id)
+          .query(query);
+        res.send(result.recordset);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send('Errore nel recupero dei dati.');
+      }
+    });
+app.put('/api/deviceUpdate/:id', async (req, res) => {
+  try {
+    const jsonData = req.body;
+    const jsonDataString = JSON.stringify(jsonData.data);
+    const id = req.params.id;
+
+    let retryCount = 0;
+    let success = false;
+
+    while (!success && retryCount < 3) {
+      try {
         const query = `
           UPDATE TABUserDef_DataForm_P22C 
           SET lastUpdate = '${jsonData.data.lastUpdate}',
@@ -86,14 +103,29 @@ const avviaServer = async () => {
               yellowPrinterUsagePage = '${jsonData.data.coverageData.yellowPrinterUsagePage}',
               completejson = '${jsonDataString}'
           WHERE DeviceId = '${id}' `;
+
         const result = await pool.request().query(query);
+        success = true;
         res.status(200).send({ message: `Dati inseriti correttamente - ${jsonData.DeviceId} `, result: result });
       } catch (error) {
         console.error(error);
-        res.status(500).send('Errore nell\'aggiornamento dei dati: ', error);
+        if (error.code === 'EREQUEST' && error.number === 1205) {
+          // Deadlock error, retry the transaction
+          retryCount++;
+        } else {
+          res.status(500).send('Errore nell\'aggiornamento dei dati: ', error);
+        }
       }
-    });
+    }
 
+    if (!success) {
+      res.status(500).send('Errore nell\'aggiornamento dei dati: deadlock persistente');
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Errore nell\'aggiornamento dei dati: ', error);
+  }
+});
     app.post('/api/inDevice', async (req, res) => {
       const jsonData = req.body;
       const jsonDataString = JSON.stringify(jsonData.data);
