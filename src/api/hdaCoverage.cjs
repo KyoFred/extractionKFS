@@ -36,11 +36,16 @@ const avviaServer = async () => {
     const queryBD = settings.queryDbListDeviceC;
     app.get('/api/device/:id', async (req, res) => {
       try {
+        const id = req.params.id;
         const query = 'SELECT * FROM TABUserDef_DataForm_P22C WHERE DeviceId = @id';
         const result = await pool.request()
           .input('id', sql.VarChar, req.params.id)
           .query(query);
-        res.send(result.recordset);
+        if (result.recordset.length > 0) {
+          res.send(result.recordset[0]);
+        } else {
+          res.status(404).send('Device not found.');
+        }
       } catch (error) {
         console.error(error);
         res.status(500).send('Errore nel recupero dei dati.');
@@ -163,7 +168,7 @@ app.put('/api/deviceUpdate/:id', async (req, res) => {
       }
     });
 
-    const port = 3001;
+    const port = 4001;
     app.listen(port, () => {
       console.log(`API in ascolto sulla porta ${port}`);
     });
@@ -173,5 +178,8 @@ app.put('/api/deviceUpdate/:id', async (req, res) => {
     await sql.close();
   }
 };
+module.exports = {
+  avviaServer
+};
 
-avviaServer();
+// avviaServer();

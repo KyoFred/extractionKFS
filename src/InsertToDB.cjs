@@ -34,10 +34,9 @@ async function gestisciElementoJSON(jsonData) {
   } else if (Object.keys(coverage).length !== 0) {
     const checkDevice = await checkDeviceId(jsonData.DeviceId);
     const checkData = await controllaCoverageData(jsonData);
-  //  console.log(checkData);
     const optionsPost = {
       hostname: 'localhost',
-      port: 3001,
+      port: 4001,
       path: '/api/inDevice',
       method: 'POST',
       headers: {
@@ -46,7 +45,7 @@ async function gestisciElementoJSON(jsonData) {
     };
     const optionsPut = {
       hostname: 'localhost',
-      port: 3001,
+      port: 4001,
       path: `/api/deviceUpdate/${jsonData.DeviceId}`,
       method: 'PUT',
       headers: {
@@ -75,6 +74,21 @@ async function gestisciElementoJSON(jsonData) {
     });
     req.write(JSON.stringify(checkData));
     req.end();
+
+    return new Promise((resolve, reject) => {
+      req.on('response', (res) => {
+        let responseData = '';
+        res.on('data', (chunk) => {
+          responseData += chunk;
+        });
+        res.on('end', () => {
+          resolve(responseData);
+        });
+      });
+      req.on('error', (error) => {
+        reject(error);
+      });
+    });
   }
 }
 
@@ -86,19 +100,28 @@ async function insertToDB(q) {
     console.error('Non è stato possibile leggere i dati JSON dal file.', jsonData);
     return;
   }
+  
+  let totalRequests = 0;
+  let completedRequests = 0;
+
   if (q) {
     const limit = new Sema(Math.min(jsonData.length, 10));
     let requestCount = 0;
     for (const elementoJSON of jsonData) {
       await limit.acquire();
-      await gestisciElementoJSON(elementoJSON);
+     const responseData = await gestisciElementoJSON(elementoJSON);
       limit.release();
       requestCount++;
+      completedRequests++;
       if (requestCount % 100 === 0) {
-        await sleep(10000); // Timeout of 5 seconds
+        await sleep(20000); // Timeout of 5 seconds
       }
+      totalRequests++;
+      responseData && console.log('responseData:',responseData,' totalRequests: '+totalRequests );
     }
   }
+
+  console.log(`Totale richieste eseguite: ${completedRequests}, Totale richieste da eseguire: ${totalRequests}`);
 }
 
 async function controllaCoverageData(jsonData) {
@@ -143,7 +166,7 @@ async function controllaCoverageData(jsonData) {
 
 async function checkDeviceId(id) {
   try {
-    const response = await fetch(`http://localhost:3001/api/device/${id}`);
+    const response = await fetch(`http://localhost:4001/api/device/${id}`);
     const data = await response.json();
   //  console.log('checkDevice id:', id, '-->', data.length);
     return data.length > 0;

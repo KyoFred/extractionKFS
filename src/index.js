@@ -1,17 +1,15 @@
-const { listDevices } = require('./listDevices.cjs');
-const { processDevices } = require('./processDevices.cjs');
-const { insertToDB } = require('./InsertToDB.cjs');
-const { writeToLog } = require('./writeToLog.cjs');
-const fs = require('fs').promises;
-const path = require('path');
-const cron = require('node-cron');
+import fs from 'fs/promises';
+import { insertToDB } from './InsertToDB.cjs';
+import { avviaServer } from './api/hdaCoverage.cjs';
+import { writeToLog } from './writeToLog.cjs';
 
 // ... resto del codice
 
-const settingsFilePath = path.resolve(__dirname, '../data/settings.json');
-const jsonFilePath = path.resolve(__dirname, '../coverages/');
-const listDevicePath = path.resolve(__dirname, '../data/listDevices.json');
-const listDeviceFilePathUpdate = path.resolve(__dirname, '../data/listDeviceUpdate.json');
+
+const settingsFilePath = new URL('../data/settings.json', import.meta.url).pathname;
+const jsonFilePath = new URL('../coverages/', import.meta.url).pathname; 
+const listDevicePath = new URL('../data/listDevices.json', import.meta.url).pathname; 
+const listDeviceFilePathUpdate = new URL('../data/listDeviceUpdate.json', import.meta.url).pathname;   
 // Percorso del file di log
 
 
@@ -47,7 +45,7 @@ async function startProcessKfs() {
     try {
       console.log('--- InsertToDB start---');
       const q = true;
-     // await insertToDB(q);
+      await insertToDB(q);
       console.log('--- InsertToDB fine ---');
     } catch (error) {
       console.error('Errore durante l\'esecuzione di InsertToDB:', error);
@@ -60,5 +58,6 @@ async function startProcessKfs() {
 }
 
 //startProcessKfs();
- cron.schedule('0 23 * * 0', () => {  startProcessKfs();});
+avviaServer();
+ cron.schedule('16 18 * * 0', () => {  startProcessKfs();});
  
