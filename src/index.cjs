@@ -17,16 +17,7 @@ const listDeviceFilePathUpdate = path.resolve(__dirname, '../data/listDeviceUpda
 
 
 
-// Sovrascrivi la funzione console.log per scriverla anche sul file di log
-/* console.log = function (data, v) {
-  process.stdout.write(data + v + '\n', 'utf8');
-  writeToLog(data, { v }, 'utf8');
-};
 
-console.error = function (data, error) {
-  process.stdout.write(data + error + '\n', 'utf8');
-  writeToLog(data, { error }, 'utf8');cls
-}; */
 
 async function startProcessKfs() {
   try {
@@ -36,7 +27,7 @@ async function startProcessKfs() {
 
     try {
       console.log('---ListDevices Start ---');
-   //  await listDevices(listDevicePath);
+    // await listDevices(listDevicePath);
       console.log('--- ListDevices fine ---');
       
     } catch (error) {
@@ -46,7 +37,7 @@ async function startProcessKfs() {
 
     try {
       console.log('--- Process Devices start---');
-    //  await processDevices(userId, password, pageLogin, pageKfs, jsonFilePath, listDeviceFilePathUpdate,listDevicePath);
+   //  await processDevices(userId, password, pageLogin, pageKfs, jsonFilePath, listDeviceFilePathUpdate,listDevicePath);
       console.log('--- Process Devices fine ---');
     } catch (error) {
       console.error('Errore durante l\'esecuzione di processDevices:', error);

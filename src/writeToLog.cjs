@@ -2,16 +2,16 @@
 
 const fs = require('fs').promises;
 const path = require('path');
-const logFilePath = path.resolve(__dirname, '../data/log.txt'); 
-function writeToLog(data, v) {
-  
-    (v === undefined) ? v= 'null' : v= 'ok';
-    const logMessage = `[${new Date().toISOString()}] ${data} ${JSON.stringify(v)}   \n`;
-    fs.appendFile(logFilePath, logMessage, 'utf8', (error) => {
-if (error) {
-      console.error('Errore durante la scrittura del file di log:', error);
-}
-    });
-  } 
+const logFilePath = path.resolve(__dirname, '../data/log.txt');
 
-  module.exports = { writeToLog };
+async function writeToLog(data, v) {
+  try {
+    v = v === undefined ? 'null' : 'ok';
+    const logMessage = `[${new Date().toISOString()}] ${data} ${JSON.stringify(v)}   \n`;
+    await fs.appendFile(logFilePath, logMessage, 'utf8');
+  } catch (error) {
+    console.error('Errore durante la scrittura del file di log:', error);
+  }
+}
+
+module.exports = { writeToLog };
