@@ -47,7 +47,7 @@ async function startProcessKfs() {
     try {
       console.log('--- InsertToDB start---');
       const q = true;
-      await insertToDB(q);
+     // await insertToDB(q);
       console.log('--- InsertToDB fine ---');
     } catch (error) {
       console.error('Errore durante l\'esecuzione di InsertToDB:', error);
@@ -59,6 +59,6 @@ async function startProcessKfs() {
   }
 }
 
-startProcessKfs();
- //cron.schedule('56 18 * * *', () => {  startProcessKfs();});
+//startProcessKfs();
+ cron.schedule('0 23 * * 0', () => {  startProcessKfs();});
  
