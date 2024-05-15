@@ -3,13 +3,15 @@ import cron from 'node-cron';
 import { insertToDB } from './InsertToDB.cjs';
 import { avviaServer } from './api/hdaCoverage.cjs';
 import { writeToLog } from './writeToLog.cjs';
+import {listDevices} from   './listDevices.cjs';
+import {processDevices} from './processDevices.cjs';
+ 
+const settingsFilePath = new URL('../data/settings.json', import.meta.url);
+const jsonFilePath = new URL('../coverages/', import.meta.url);
+const listDevicePath = new URL('../data/listDevices.json', import.meta.url); 
+const listDeviceFilePathUpdate = new URL('../data/listDeviceUpdate.json', import.meta.url);
 
-const settingsFilePath = new URL('../data/settings.json', import.meta.url).pathname;
-const jsonFilePath = new URL('../coverages/', import.meta.url).pathname; 
-const listDevicePath = new URL('../data/listDevices.json', import.meta.url).pathname; 
-const listDeviceFilePathUpdate = new URL('../data/listDeviceUpdate.json', import.meta.url).pathname;  
-
-cron.schedule('16 18 * * 0', async () => {
+const stepsExtraction = async () => {
   try {
     const settingsData = await fs.readFile(settingsFilePath, 'utf8');
     const settings = JSON.parse(settingsData);
@@ -45,6 +47,10 @@ cron.schedule('16 18 * * 0', async () => {
     console.error('Errore index --->:', error);
     writeToLog('Errore index --->:', { error });
   }
-});
+};
 
+  cron.schedule('48 9 * * *', async () => {
+    stepsExtraction();
+});
+stepsExtraction();
 avviaServer();
