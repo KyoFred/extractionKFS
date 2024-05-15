@@ -4,8 +4,8 @@
   "type": "module",
   "description": "Analysis Extraction JSON KFS",
   "scripts": {
-    "start": "node ./src/index.cjs",
-    "dev": "nodemon ./src/index.cjs",
+    "start": "node ./src/index.js",
+    "dev": "nodemon ./src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "babel src -d dist && terser dist/*.js -o dist/minified.js --compress --mangle"
   },
