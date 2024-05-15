@@ -3,7 +3,7 @@ const sql = require('mssql');
 const path = require('path');
 const settingsFilePath = path.resolve(__dirname, '../../data/settings.json');
 const fs = require('fs').promises;
-
+const {stepsExtraction} = require('../stepsExtraction.cjs');
 const leggiDatiDaFile = async () => {
   try {
     const data = await fs.readFile(settingsFilePath, 'utf8');
@@ -14,7 +14,15 @@ const leggiDatiDaFile = async () => {
   }
 };
 
-const avviaServer = async () => {
+
+// Importa la funzione stepsExtraction
+
+
+
+
+
+
+async function avviaServer () {
   try {
     const settings = await leggiDatiDaFile();
     const config = {
@@ -34,6 +42,19 @@ const avviaServer = async () => {
     app.use(express.json());
 
     const queryBD = settings.queryDbListDeviceC;
+    app.get('/api/estrazioneCoverageGroup/:id', async (req, res) => {
+      const { id } = req.params;
+      
+      try {
+        // Chiamata alla funzione stepsExtraction passando l'id come parametro
+        const stepsExtractionPromise =  await stepsExtraction(id);
+        res.send('Esecuzione del processo per il group: ' + id + ' con un totale di devices: '+stepsExtractionPromise);
+      } catch (error) {
+        console.error('Errore durante l\'esecuzione dei passaggi:', error);
+        res.status(500).send('Errore durante l\'esecuzione dei passaggi');
+      }
+    });
+
     app.get('/api/device/:id', async (req, res) => {
       try {
         const id = req.params.id;
@@ -59,6 +80,31 @@ const avviaServer = async () => {
           .input('id', sql.VarChar, req.params.id)
           .query(query);
         res.send(result.recordset);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send('Errore nel recupero dei dati.');
+      }
+    });
+    app.get('/api/listDeviceGroup/:id', async (req, res) => {
+    
+      try {
+        const id = req.params.id;
+        const query = `select distinct
+        kd.DeviceId
+        from KyoKFSDevice kd with (nolock)
+        inner join KyoKFSGroups KG with (nolock) on KD.GroupId = KG.GroupId
+        inner join KyoKFSGroups KGP with (nolock) on KG.ParentGroupId = KGP.GroupId
+        inner join KyoKFSGroups KORIGIN with (nolock) on KG.OriginGroupId = KORIGIN.GroupId
+        where
+        KOrigin.groupName =  @id`;
+        const result = await pool.request()
+          .input('id', sql.VarChar, req.params.id)
+          .query(query);
+        if (result.recordset.length > 0) {
+          res.send(result.recordset);
+        } else {
+          res.status(404).send('Device not found.');
+        }
       } catch (error) {
         console.error(error);
         res.status(500).send('Errore nel recupero dei dati.');
@@ -178,8 +224,6 @@ app.put('/api/deviceUpdate/:id', async (req, res) => {
     await sql.close();
   }
 };
-module.exports = {
-  avviaServer
-};
+module.exports  = {avviaServer};
 
 // avviaServer();
