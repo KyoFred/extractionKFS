@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 const sql = require('mssql');
 const path = require('path');
 const settingsFilePath = path.resolve(__dirname, '../../data/settings.json');
@@ -30,6 +31,15 @@ async function avviaServer () {
       user: settings.userDB,
       password: settings.passwordDB,
       database: '',
+      options: {
+        encrypt: false
+      }
+    };
+    const configDocker = {
+      server: process.env.DB_SERVER,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       options: {
         encrypt: false
       }
