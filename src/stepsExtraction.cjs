@@ -19,20 +19,20 @@ async function stepsExtraction(group) {
       console.log('---listDevicesGroup Start ---');
     const result= await listDevicesGroup(listDevicePath, group);
       console.log('--- listDevicesGroup fine ---',result);
-      return result;
+    //  return result;
     } else {
       console.log('---listDevices Start ---');
       const result=  await listDevices(listDevicePath);
       console.log('--- listDevices fine ---',result);
-      return result;
+     // return result;
     }
 
     console.log('--- Process Devices start---');
    await processDevices(userId, password, pageLogin, pageKfs, jsonFilePath, listDeviceFilePathUpdate, listDevicePath);
     console.log('--- Process Devices fine ---');
 
-    console.log('--- InsertToDB start---');
-    await insertToDB();
+    console.log('--- InsertToDB start---',jsonFilePath);
+    await insertToDB(true);
     console.log('--- InsertToDB fine ---');
   } catch (error) {
     console.error('Errore index --->:', error);
