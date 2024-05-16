@@ -3,6 +3,8 @@ const fs = require('fs');
 const http = require('http');
 const fetch = require('node-fetch');
 const { Sema } = require('async-sema');
+let totalRequestsPut = 0;
+let totalRequestsPost = 0;
 
 async function leggiJSONDaFile(filePath) {
   try {
@@ -54,10 +56,17 @@ async function gestisciElementoJSON(jsonData) {
     };
     let options;
     if (checkDevice) {
+      console.log('Risposta: put checkDevice', checkDevice);
       options = optionsPut;
+     
     } else {
+      console.log('Risposta: post checkDevice', checkDevice);
       options = optionsPost;
+      totalRequestsPost++;
     }
+    if(checkDevice !=jsonData.data.lastUpdate){
+      console.log('da aggiornare', checkDevice,' lastUpdate:', jsonData.data.lastUpdate);
+      totalRequestsPut++;
     const agent = new http.Agent({ keepAlive: true });
     const req = http.request({ ...options, agent }, (res) => {
       let data = '';
@@ -69,11 +78,12 @@ async function gestisciElementoJSON(jsonData) {
       });
     });
     req.on('error', (error) => {
-      console.error('---insert DeviceId: ', jsonData.DeviceId, options.method);
+      console.error('--Errore-insert DeviceId: ', jsonData.DeviceId, options.method);
       console.error('Errore:', error.message);
     });
     req.write(JSON.stringify(checkData));
     req.end();
+
 
     return new Promise((resolve, reject) => {
       req.on('response', (res) => {
@@ -89,6 +99,10 @@ async function gestisciElementoJSON(jsonData) {
         reject(error);
       });
     });
+  }else{
+    console.log('non è aggiornato', checkDevice,' lastUpdate:', jsonData.data.lastUpdate);
+    return 'non è aggiornato';
+  }
   }
 }
 
@@ -121,7 +135,8 @@ async function insertToDB(q) {
     }
   }
 
-  console.log(`Totale richieste eseguite: ${completedRequests}, Totale richieste da eseguire: ${totalRequests}`);
+  console.log(`Totale richieste eseguite: ${completedRequests}, uptodate: ${totalRequestsPut}, insert: ${totalRequestsPost}, Totale richieste da eseguire: ${totalRequests}`);
+  writeToLog(`Totale richieste eseguite: ${completedRequests}, uptodate: ${totalRequestsPut}, insert: ${totalRequestsPost}, Totale richieste da eseguire: `,totalRequests);
 }
 
 async function controllaCoverageData(jsonData) {
@@ -168,10 +183,11 @@ async function checkDeviceId(id) {
   try {
     const response = await fetch(`http://localhost:4001/api/device/${id}`);
     const data = await response.json();
-  //  console.log('checkDevice id:', id, '-->', data.length);
-    return data.length > 0;
+    console.log('checkDevice id:', id, '-->', data.lastUpdate);
+    return data.lastUpdate;
   } catch (error) {
     console.error('Si è verificato un errore:', id, '--', error);
+    writeToLog('Si è verificato un errore: ', { error });
     return false;
   }
 }
