@@ -3,11 +3,12 @@ const MAX_RETRY = 3;
 const TIMEOUT = 30000;
 const { Builder, By, until } = require('selenium-webdriver');
 const fs = require('fs').promises;
-const jsonFilePathError = '../coverages/error/DeviceError.json';
+//const jsonFilePathError = '../coverages/error/DeviceError.json';
 let driver; // Creare una variabile globale per il driver
 
 async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath, listDeviceFilePathUpdate, listDevicePath) {
   try {
+    const jsonFilePathError =jsonFilePath+'/error/DeviceError.json';
     const devices = await leggiJSON(listDevicePath);
     const devicesUp = await leggiJSON(listDeviceFilePathUpdate);
     if (!driver) {driver = await new Builder().forBrowser('chrome').build();}
@@ -34,7 +35,7 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
           const DeviceId = device['DeviceId'];
           const deviceInDevicesUp = devicesUp.find(device => device.DeviceId === DeviceId);
           if(!deviceInDevicesUp){
-            console.log("Non ce... ",DeviceId);
+            console.log("non si trova questo: ",DeviceId);
                    const pageKfsn = pageKfs + DeviceId + '/Counter';
                     let retryCount = 0;
           while (retryCount < MAX_RETRY) {
@@ -50,7 +51,7 @@ async function processDevices(userId, password, pageLogin, pageKfs, jsonFilePath
                   device['status'] = 'null';
                   device['data'] = {};
                   devicesError ++;
-               console.log('jsonData null ','--',devicesError,'Di: ', totalDevices);
+               console.log('jsonData null ','--',devicesError,'Di: ', totalDevices,'device: ', device);
                jsonDataError.push(device);
                SaveFile(jsonFilePathError, jsonDataError);
                 } else {
