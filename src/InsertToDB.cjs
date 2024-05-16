@@ -3,6 +3,7 @@ const fs = require('fs');
 const http = require('http');
 const fetch = require('node-fetch');
 const { Sema } = require('async-sema');
+const { writeToLog } = require('./writeToLog.cjs');
 let totalRequestsPut = 0;
 let totalRequestsPost = 0;
 
