@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+
+  kfs-coverage:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kfs-coverage
+    restart: unless-stopped
+    ports:
+      - "4002:4001/tcp"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      DB_SERVER: 172.17.136.101
+      DB_PORT: 1433
+      DB_USER: AppKyoKFS
+      DB_PASSWORD: Kyocera$KFS$2023
+      DB_NAME: MyDatabase
+      DB_CONNECTION: open
+
+
